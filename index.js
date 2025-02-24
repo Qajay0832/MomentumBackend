@@ -22,12 +22,12 @@ mongoose.connect(`mongodb+srv://${DB_User}:${DB_key}@cluster0.u7kjr.mongodb.net/
 
 app.get("/graph", async (req, res) => {
     try {
-        const graphData = await User.findOne({ username: "Ajay0832" });
-        if(!graphData){
-            return res.send(400,"You are Bad!")
+        const graphData = await User.findOne({ username: "Qajay0832" });
+        if (!graphData) {
+            return res.send(400, "You are Bad!")
         }
         console.log(graphData);
-        return res.send(200,graphData)
+        return res.send(200, graphData)
     }
     catch (error) {
         console.log(error);
@@ -36,24 +36,45 @@ app.get("/graph", async (req, res) => {
     }
 
 });
-app.post("/graph", (req, res) => {
-    const { host, username, password, data } = req.body;
+app.post("/graph", async (req, res) => {
+    const { host, username, password,  dependencyIds } = req.body;
+    let dbConfi = {
+        flow: "flow name",
+        entities_to_mock: dependencyIds,
+        is_db_mocked: false,
+        db_config: {
+            username: username,
+            password: password
+        }
+    }
     try {
-        // const userData = new User(
-        //     { name: host, username, password, proxy: data }
-        // )
-        // userData.save().then(response => {
-        //     console.log("saved to db");
-        //     return res.send(200, "user successfully created!")
-        // })
-        //     .catch((error) => {
-        //         console.log("failed to save user in DB", error);
-        //         return res.send(500, 'failed to save user in DB!')
-        //     })
+        const graphData = await User.findOne({ username: username });
+        if (!graphData) {
+            res.send(404, "User not found")
+        }
+        try {
+            const UpdateDependency = await User.findOneAndUpdate({ username: username },
+                {
+                    $set: {
+                        dbSchema: dbConfi
+                    }
+                },
+                { new: true }
+            )
+            if (!UpdateDependency) {
+                res.send(400, "Bad Request Unable to find User!")
+            }
+            res.send(200, graphData)
+        }
+        catch (error) {
+            console.log(error);
+            res.send(500, "Error While Updating User")
+
+        }
     }
     catch (error) {
         console.log(error);
-        res.send(400, "failed to save data")
+        res.send(500, "Failed to Edit data Server Issue !")
     }
 
 });

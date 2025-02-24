@@ -3,6 +3,30 @@ const Schema = mongoose.Schema;
 
 
 // Define the function schema
+const DbConfigSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+});
+
+const dbSchema = new mongoose.Schema({
+  entities_to_mock: {
+    type: [String],
+  },
+  is_db_mocked: {
+    type: Boolean,
+    required: true,
+  },
+  db_config: {
+    type: DbConfigSchema,
+    required: true,
+  },
+});
 const functionSchema = new Schema({
     
   function: { type: String, required: true },
@@ -45,6 +69,10 @@ const UserSchema = new Schema({
         required: true
     },
   proxy: [proxySchema],
+  dbSchema:[dbSchema],
+  dependencylibs:{
+    type:[String]
+  }
 });
 
 // Create and export the Mongoose model
